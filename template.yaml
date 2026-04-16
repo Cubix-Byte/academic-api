@@ -1,0 +1,305 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "This template deploys a academic-api service on ECS Fargate"
+
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues:
+      - dev
+      - stg
+      - prod
+    Default: dev
+  ProjectName:
+    Type: String
+    Description: Enter Project Name
+    Default: cognify
+  AssignPublicIP:
+    Type: String
+    AllowedValues:
+      - ENABLED
+      - DISABLED
+    Default: DISABLED
+  ContainerPort:
+    Type: String
+    Description: academic-api(3000)
+    Default: 3000
+  Cpu:
+    Type: String
+    Description: .25 vCPU, .5 vCPU, 1 vCPU, 2 vCPU, 4 vCPU
+    AllowedValues:
+    - 256
+    - 512
+    - 1024
+    - 2048
+    - 4096
+    Default: 256
+  Memory:
+    Type: String 
+    Description:  
+      0.5GB, 1GB, 2GB, 3GB, 4GB, 5GB
+    AllowedValues:
+    - 0.5GB
+    - 1GB
+    - 2GB
+    - 3GB
+    - 4GB
+    - 5GB
+    Default: 0.5GB
+  DesiredCount:
+    Type: Number
+    Default: 1
+  ServiceName:
+    Type: String
+    Description: 'Service Name'
+    Default: academic-api
+  ECSServiceName:
+    Type: String
+    Description: 'ECS Service Name'
+    Default: MSAcademicAPI
+  JWTExpiresIn:
+    Type: String
+    Description: 'JWT Expires In'
+    Default: 2h
+  JWTRefreshExpiresIn:
+    Type: String
+    Description: 'JWT Refresh Expires In'
+    Default: 7d
+  NodeEnvironment:
+    Type: String
+    Description: 'Node Environment'
+    Default: staging
+  AllowedOrigins:
+    Type: String
+    Description: 'Allowed Origins'
+    Default: https://dev.cognify.education/
+  BaseUrl:
+    Type: String
+    Description: 'Base URL'
+    Default: https://dev.cognify.education
+# Conditions:
+#   IsProd:
+#     Fn::Equals:
+#       - !Ref Environment
+#       - prod
+
+Resources:
+#Task Definition Configuration
+  AcademicAPITaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub '${Environment}-${ProjectName}-${ServiceName}'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu:  !Ref Cpu
+      Memory: !Ref Memory
+      ExecutionRoleArn: 
+        Fn::ImportValue:
+                !Sub ${Environment}-${ProjectName}-execution-role
+      TaskRoleArn: 
+        Fn::ImportValue:
+                !Sub ${Environment}-${ProjectName}-task-role
+      ContainerDefinitions:
+        - Name: !Ref ServiceName
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ServiceRepo}:latest"
+          PortMappings:
+            - Name: !Ref ServiceName
+              ContainerPort: !Ref ContainerPort
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-region: !Ref AWS::Region
+              awslogs-group: !Ref LogGroup
+              awslogs-stream-prefix: ecs
+          Environment:
+            - Name: PORT
+              Value: !Ref ContainerPort
+            - Name: ALLOWED_ORIGINS
+              Value: !Ref AllowedOrigins
+            - Name: JWT_EXPIRES_IN
+              Value: !Ref JWTExpiresIn
+            - Name: JWT_REFRESH_EXPIRES_IN
+              Value: !Ref JWTRefreshExpiresIn
+            - Name: NODE_ENV
+              Value: !Ref NodeEnvironment
+            - Name: USER_API_URL
+              Value: http://user-api:3000
+            - Name: AI_API_URL
+              Value: http://ai-api:3000
+            - Name: BASE_URL
+              Value: !Ref BaseUrl
+          Secrets:
+            - Name: JWT_SECRET
+              ValueFrom: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Environment}/ecs/global/JWT_SECRET"
+            - Name: JWT_REFRESH_SECRET
+              ValueFrom: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Environment}/ecs/global/JWT_REFRESH_SECRET"
+            - Name: MONGODB_URI
+              ValueFrom: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Environment}/${ServiceName}/MONGO_URI"
+            - Name: INTERNAL_API_KEY
+              ValueFrom: !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${Environment}/ecs/global/INTERNAL_API_KEY"
+ 
+  #Target Group
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    #DeletionPolicy: Retain
+    Properties:
+      HealthCheckIntervalSeconds: 60
+      HealthCheckTimeoutSeconds: 5
+      UnhealthyThresholdCount: 5
+      HealthyThresholdCount: 5
+      HealthCheckPath: /health
+      Name: !Sub '${Environment}-${ProjectName}-${ServiceName}-tg'
+
+      Port: 80
+      Protocol: HTTP
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: 60
+      TargetType: ip
+      VpcId:
+        Fn::ImportValue: !Sub "${Environment}-${ProjectName}-VPCId"
+#Listener Rule
+  AcademicAPIListenerRule:
+    Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
+    Properties:
+        Priority: 1
+        ListenerArn:
+          Fn::ImportValue:
+            !Sub  ${Environment}-${ProjectName}-https-listner-arn
+        Conditions: 
+          -
+            Field: "path-pattern"
+            Values:
+              - "/academy/*"
+        Actions: 
+          - 
+            Type: "forward"
+            TargetGroupArn: !Ref TargetGroup
+            Order: 1
+            ForwardConfig: 
+                TargetGroups: 
+                  - 
+                    TargetGroupArn: !Ref TargetGroup
+                    Weight: 1
+                TargetGroupStickinessConfig: 
+                    Enabled: false
+  #ECR Repository
+  ServiceRepo: 
+    Type: AWS::ECR::Repository
+    Properties: 
+      RepositoryName: !Sub '${Environment}-${ProjectName}-${ServiceName}'
+      ImageScanningConfiguration: 
+        ScanOnPush: true
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Only keep 10 images",
+                "selection": {
+                  "tagStatus": "any",
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 10
+              },
+              "action": { "type": "expire" }
+            }]
+          }
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/ecs/${Environment}-${ProjectName}-${ServiceName}'
+      RetentionInDays: 30
+#Service Definition
+  AcademicAPIService:
+    Type: AWS::ECS::Service
+    Properties: 
+      ServiceName: !Ref ECSServiceName
+      Cluster: !Sub '${Environment}-${ProjectName}-cluster'
+      TaskDefinition: !Ref AcademicAPITaskDefinition
+      DeploymentConfiguration:
+        MinimumHealthyPercent: 100
+        MaximumPercent: 200
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+      DesiredCount: !Ref DesiredCount
+      HealthCheckGracePeriodSeconds: 180
+      ServiceConnectConfiguration:
+        Enabled: true 
+        Namespace: !Sub "${ProjectName}.${Environment}"
+        Services: 
+          - PortName: !Ref ServiceName
+            DiscoveryName: !Ref ServiceName
+            ClientAliases:
+              - DnsName: !Ref ServiceName
+                Port: !Ref ContainerPort
+      NetworkConfiguration: 
+        AwsvpcConfiguration:
+          AssignPublicIp: !Ref AssignPublicIP
+          Subnets:
+          - Fn::ImportValue: !Sub "${Environment}-${ProjectName}-PrivateSubnet1"
+          - Fn::ImportValue: !Sub "${Environment}-${ProjectName}-PrivateSubnet2"
+          - Fn::ImportValue: !Sub "${Environment}-${ProjectName}-PrivateSubnet3"
+          SecurityGroups:
+            - Fn::ImportValue: !Sub "${Environment}-${ProjectName}-internal-sg"
+      CapacityProviderStrategy:
+        - CapacityProvider: FARGATE_SPOT
+          Weight: 1
+      LoadBalancers:
+        - ContainerName: !Ref ServiceName
+          ContainerPort: !Ref ContainerPort
+          TargetGroupArn: !Ref TargetGroup
+  
+# # Autoscaling Target for Auth Service
+#   ScalableTargetAcademicAPI:
+#     Condition: IsProd
+#     Type: AWS::ApplicationAutoScaling::ScalableTarget
+#     Properties:
+#       MinCapacity: !If
+#         - IsProd
+#         - 1
+#         - 1
+#       MaxCapacity: !If
+#         - IsProd
+#         - 5
+#         - 1
+#       ResourceId: !Join
+#         - /
+#         - - service
+#           - !Sub ${Environment}-rideart-cluster
+#           - !GetAtt AuthService.Name
+#       ScalableDimension: ecs:service:DesiredCount
+#       ServiceNamespace: ecs
+#       RoleARN: !ImportValue
+#         Fn::Sub: ${Environment}-auto-scaling-role
+
+  # Scaling Policy for CPU Utilization
+  # ScalingPolicyAuthCPU:
+  #   Condition: IsProd
+  #   Type: AWS::ApplicationAutoScaling::ScalingPolicy
+  #   Properties:
+  #     PolicyName: ScalingPolicyAuthCPU
+  #     PolicyType: TargetTrackingScaling
+  #     ScalingTargetId: !Ref ScalableTargetAuth
+  #     TargetTrackingScalingPolicyConfiguration:
+  #       PredefinedMetricSpecification:
+  #         PredefinedMetricType: ECSServiceAverageCPUUtilization
+  #       ScaleInCooldown: 60
+  #       ScaleOutCooldown: 60
+  #       TargetValue: 70 
+
+  # Scaling Policy for Memory Utilization
+  # ScalingPolicyAuthMemory:
+  #   Condition: IsProd
+  #   Type: AWS::ApplicationAutoScaling::ScalingPolicy
+  #   Properties:
+  #     PolicyName: ScalingPolicyAuthMemory
+  #     PolicyType: TargetTrackingScaling
+  #     ScalingTargetId: !Ref ScalableTargetAuth
+  #     TargetTrackingScalingPolicyConfiguration:
+  #       PredefinedMetricSpecification:
+  #         PredefinedMetricType: ECSServiceAverageMemoryUtilization
+  #       ScaleInCooldown: 60
+  #       ScaleOutCooldown: 60
+  #       TargetValue: 70 

@@ -1,0 +1,65 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Academy API",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--inspect-brk=9230",
+        "-r",
+        "ts-node/register",
+        "-r",
+        "tsconfig-paths/register"
+      ],
+      "args": [
+        "${workspaceFolder}/academy-api/src/server.ts"
+      ],
+      "cwd": "${workspaceFolder}/academy-api",
+      "env": {
+        "NODE_ENV": "development",
+        "TS_NODE_SOURCE_MAPS": "true"
+      },
+      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/academy-api/**",
+        "!**/node_modules/**"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/academy-api/dist/**/*.js",
+        "${workspaceFolder}/academy-api/src/**/*.ts"
+      ],
+      "smartStep": true
+    },
+    {
+      "name": "Attach to Academy API",
+      "type": "node",
+      "request": "attach",
+      "port": 9230,
+      "restart": true,
+      "protocol": "inspector",
+      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "localRoot": "${workspaceFolder}/academy-api",
+      "remoteRoot": "${workspaceFolder}/academy-api",
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/academy-api/**",
+        "!**/node_modules/**"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/academy-api/dist/**/*.js",
+        "${workspaceFolder}/academy-api/src/**/*.ts"
+      ],
+      "smartStep": true
+    }
+  ]
+}
+

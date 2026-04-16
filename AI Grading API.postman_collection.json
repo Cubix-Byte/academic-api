@@ -1,0 +1,387 @@
+{
+	"info": {
+		"_postman_id": "ad602ffb-cc86-4c5f-9a08-eb2bd88a1832",
+		"name": "AI Grading API",
+		"description": "Postman collection for testing AI-powered exam grading endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49055089",
+		"_collection_link": "https://brighton-ai-551304.postman.co/workspace/Team-Workspace~484a0639-9a1f-4e79-84cc-d4d2c63561d9/collection/49055089-ad602ffb-cc86-4c5f-9a08-eb2bd88a1832?action=share&source=collection_link&creator=49055089"
+	},
+	"item": [
+		{
+			"name": "AI API - Grade Single Question",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}",
+						"description": "Optional authentication token"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"questionId\": \"507f1f77bcf86cd799439011\",\n  \"questionText\": \"Explain the process of photosynthesis in plants. Include the main stages and the role of chlorophyll.\",\n  \"studentAnswer\": \"Photosynthesis happens when plants use sunlight to make food. They use chlorophyll which is green and captures light. The process makes oxygen and glucose from carbon dioxide and water. There are light reactions and dark reactions.\",\n  \"questionType\": \"Long Answers\",\n  \"maxMarks\": 10,\n  \"difficulty\": \"Medium\",\n  \"fileIds\": [\"507f1f77bcf86cd799439030\", \"507f1f77bcf86cd799439031\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/ai/api/v1/grading/grade-question",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ai",
+						"api",
+						"v1",
+						"grading",
+						"grade-question"
+					]
+				},
+				"description": "Grades a single question using AI. For subjective questions (Short/Long Answers), provide fileIds to extract content from files. AI will analyze source files first, then grade the student answer. Note: correctAnswer is optional - only required for MCQs/True-False."
+			},
+			"response": []
+		},
+		{
+			"name": "AI API - Grade MCQ Question",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"questionId\": \"507f1f77bcf86cd799439012\",\n  \"questionText\": \"What is the primary function of mitochondria?\",\n  \"correctAnswer\": \"Cellular respiration and ATP production\",\n  \"explanation\": \"Mitochondria are the powerhouses of the cell, responsible for producing ATP through cellular respiration.\",\n  \"studentAnswer\": \"Cellular respiration and ATP production\",\n  \"questionType\": \"MCQs\",\n  \"maxMarks\": 2,\n  \"difficulty\": \"Easy\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/ai/api/v1/grading/grade-question",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ai",
+						"api",
+						"v1",
+						"grading",
+						"grade-question"
+					]
+				},
+				"description": "Example of MCQ grading (auto-graded, no AI needed)"
+			},
+			"response": []
+		},
+		{
+			"name": "AI API - Grade True/False Question",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"questionId\": \"507f1f77bcf86cd799439013\",\n  \"questionText\": \"DNA is found only in the nucleus of eukaryotic cells.\",\n  \"correctAnswer\": \"false\",\n  \"explanation\": \"DNA is also found in mitochondria and chloroplasts, not just the nucleus.\",\n  \"studentAnswer\": \"false\",\n  \"questionType\": \"True/False\",\n  \"maxMarks\": 1,\n  \"difficulty\": \"Easy\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/ai/api/v1/grading/grade-question",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ai",
+						"api",
+						"v1",
+						"grading",
+						"grade-question"
+					]
+				},
+				"description": "Example of True/False grading (auto-graded, no AI needed)"
+			},
+			"response": []
+		},
+		{
+			"name": "AI API - Grade Short Answer Question",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"questionId\": \"507f1f77bcf86cd799439014\",\n  \"questionText\": \"Describe the main difference between prokaryotic and eukaryotic cells.\",\n  \"studentAnswer\": \"Prokaryotic cells don't have a nucleus, but eukaryotic cells do. Eukaryotic cells also have organelles.\",\n  \"questionType\": \"Short Answers\",\n  \"maxMarks\": 5,\n  \"difficulty\": \"Medium\",\n  \"fileIds\": [\"507f1f77bcf86cd799439032\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/ai/api/v1/grading/grade-question",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ai",
+						"api",
+						"v1",
+						"grading",
+						"grade-question"
+					]
+				},
+				"description": "Example of Short Answer grading with fileIds. AI extracts content from files, analyzes it, then grades the student answer. No correctAnswer needed for subjective questions."
+			},
+			"response": []
+		},
+		{
+			"name": "AI API - Grade Fill in the Blanks (with correctAnswer)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"questionId\": \"507f1f77bcf86cd799439015\",\n  \"questionText\": \"The process by which plants convert light energy into chemical energy is called __________.\",\n  \"correctAnswer\": \"photosynthesis\",\n  \"explanation\": \"Photosynthesis is the biological process that converts light energy into stored chemical energy.\",\n  \"studentAnswer\": \"photo synthesis\",\n  \"questionType\": \"Fill in the Blanks\",\n  \"maxMarks\": 2,\n  \"difficulty\": \"Easy\",\n  \"sourceContent\": \"Photosynthesis is the process by which plants, algae, and certain bacteria convert light energy from the sun into chemical energy stored in glucose molecules. This process is fundamental to life on Earth as it produces oxygen and organic compounds.\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/ai/api/v1/grading/grade-question",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ai",
+						"api",
+						"v1",
+						"grading",
+						"grade-question"
+					]
+				},
+				"description": "Example of Fill in the Blanks grading (uses AI for semantic similarity)"
+			},
+			"response": []
+		},
+		{
+			"name": "AI API - Grade Entire Attempt",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}",
+						"description": "Required for storage-api file extraction"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"attemptId\": \"507f1f77bcf86cd799439020\",\n  \"examId\": \"507f1f77bcf86cd799439010\",\n  \"questions\": [\n    {\n      \"questionId\": \"507f1f77bcf86cd799439011\",\n      \"questionText\": \"What is the primary function of mitochondria?\",\n      \"correctAnswer\": \"Cellular respiration and ATP production\",\n      \"explanation\": \"Mitochondria produce ATP through cellular respiration.\",\n      \"studentAnswer\": \"Cellular respiration and ATP production\",\n      \"questionType\": \"MCQs\",\n      \"maxMarks\": 2,\n      \"difficulty\": \"Easy\"\n    },\n    {\n      \"questionId\": \"507f1f77bcf86cd799439012\",\n      \"questionText\": \"DNA is found only in the nucleus.\",\n      \"correctAnswer\": \"false\",\n      \"explanation\": \"DNA is also found in mitochondria and chloroplasts.\",\n      \"studentAnswer\": \"false\",\n      \"questionType\": \"True/False\",\n      \"maxMarks\": 1,\n      \"difficulty\": \"Easy\"\n    },\n    {\n      \"questionId\": \"507f1f77bcf86cd799439013\",\n      \"questionText\": \"Explain the difference between mitosis and meiosis.\",\n      \"studentAnswer\": \"Mitosis makes two identical cells for growth. Meiosis makes four different cells for reproduction. Meiosis has two divisions.\",\n      \"questionType\": \"Short Answers\",\n      \"maxMarks\": 5,\n      \"difficulty\": \"Medium\"\n    },\n    {\n      \"questionId\": \"507f1f77bcf86cd799439014\",\n      \"questionText\": \"Describe the process of protein synthesis in detail, including transcription and translation.\",\n      \"studentAnswer\": \"Protein synthesis happens in two steps. First, DNA is copied into mRNA in the nucleus through transcription. Then mRNA goes to the ribosome where it's read and amino acids are assembled into a protein. This is called translation.\",\n      \"questionType\": \"Long Answers\",\n      \"maxMarks\": 10,\n      \"difficulty\": \"Hard\"\n    }\n  ],\n  \"fileIds\": [\"507f1f77bcf86cd799439030\", \"507f1f77bcf86cd799439031\", \"507f1f77bcf86cd799439032\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/ai/api/v1/grading/grade-attempt",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"ai",
+						"api",
+						"v1",
+						"grading",
+						"grade-attempt"
+					]
+				},
+				"description": "Grades an entire exam attempt. MCQs/True-False require correctAnswer (auto-graded). Short/Long Answers use fileIds - AI extracts content from files, analyzes it, then grades. Each question result includes independent marksObtained (not cumulative)."
+			},
+			"response": []
+		},
+		{
+			"name": "Academic API - Auto-grade Single Attempt",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}",
+						"description": "Required: Teacher/Admin authentication token"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{academicApiUrl}}/academy/api/v1/grading/auto-grade/{{attemptId}}",
+					"host": [
+						"{{academicApiUrl}}"
+					],
+					"path": [
+						"academy",
+						"api",
+						"v1",
+						"grading",
+						"auto-grade",
+						"{{attemptId}}"
+					],
+					"variable": [
+						{
+							"key": "attemptId",
+							"value": "507f1f77bcf86cd799439020",
+							"description": "The ID of the exam attempt to grade"
+						}
+					]
+				},
+				"description": "Triggers AI grading for a single submitted exam attempt. Requires valid attemptId from a submitted exam."
+			},
+			"response": []
+		},
+		{
+			"name": "Academic API - Auto-grade Attempt (with Data)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}",
+						"description": "Required: Teacher/Admin authentication token"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"attemptId\": \"6908b14dbf0cbdef9a662dd5\",\n  \"studentId\": \"68f99e8683859ce6dfdab72e\",\n  \"studentName\": \"Student\",\n  \"examId\": \"6908b118860fd557d8e106cb\",\n  \"examTitle\": \"Exam\",\n  \"totalMarks\": 150,\n  \"submittedAt\": \"2025-01-03T13:43:41.279Z\",\n  \"timeTaken\": 63,\n  \"questionsGraded\": 0,\n  \"questionsPending\": 5,\n  \"questions\": [\n    {\n      \"questionId\": \"6908b118860fd557d8e106cd\",\n      \"questionNumber\": 1,\n      \"questionType\": \"MCQs\",\n      \"questionText\": \"What is the derivative of x² + 3x + 2?\",\n      \"marks\": 25,\n      \"correctAnswer\": \"A\",\n      \"studentAnswer\": \"A\",\n      \"marksObtained\": 0\n    },\n    {\n      \"questionId\": \"6908b118860fd557d8e106ce\",\n      \"questionNumber\": 2,\n      \"questionType\": \"Short Answers\",\n      \"questionText\": \"Find the integral of 2x + 5\",\n      \"marks\": 30,\n      \"correctAnswer\": \"x² + 5x + C\",\n      \"studentAnswer\": \"Testing\",\n      \"marksObtained\": 0\n    },\n    {\n      \"questionId\": \"6908b118860fd557d8e106cf\",\n      \"questionNumber\": 3,\n      \"questionType\": \"Long Answers\",\n      \"questionText\": \"Solve the differential equation dy/dx = 2x + 3\",\n      \"marks\": 55,\n      \"correctAnswer\": \"y = x² + 3x + C\",\n      \"studentAnswer\": \"New test\",\n      \"marksObtained\": 0\n    },\n    {\n      \"questionId\": \"6908b118860fd557d8e106d0\",\n      \"questionNumber\": 4,\n      \"questionType\": \"True/False\",\n      \"questionText\": \"The derivative of a constant is zero\",\n      \"marks\": 10,\n      \"correctAnswer\": \"True\",\n      \"studentAnswer\": \"\",\n      \"marksObtained\": 0\n    },\n    {\n      \"questionId\": \"6908b118860fd557d8e106d1\",\n      \"questionNumber\": 5,\n      \"questionType\": \"Fill in the Blanks\",\n      \"questionText\": \"The limit of (x² - 4)/(x - 2) as x approaches 2 is ____\",\n      \"marks\": 30,\n      \"correctAnswer\": \"4\",\n      \"studentAnswer\": \"\",\n      \"marksObtained\": 0\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{academicApiUrl}}/academy/api/v1/grading/auto-grade-with-data",
+					"host": [
+						"{{academicApiUrl}}"
+					],
+					"path": [
+						"academy",
+						"api",
+						"v1",
+						"grading",
+						"auto-grade-with-data"
+					]
+				},
+				"description": "Auto-grade an attempt by providing the full data structure (format from getStudentAnswers). This endpoint automatically transforms the data format (marks → maxMarks, fetches explanation/difficulty, extracts fileIds from exam). Questions array uses 'marks' instead of 'maxMarks'. FileIds are automatically extracted from exam contents."
+			},
+			"response": []
+		},
+		{
+			"name": "Academic API - Auto-grade All Attempts for Exam",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{authToken}}",
+						"description": "Required: Teacher/Admin authentication token"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{academicApiUrl}}/academy/api/v1/grading/auto-grade-exam/{{examId}}",
+					"host": [
+						"{{academicApiUrl}}"
+					],
+					"path": [
+						"academy",
+						"api",
+						"v1",
+						"grading",
+						"auto-grade-exam",
+						"{{examId}}"
+					],
+					"variable": [
+						{
+							"key": "examId",
+							"value": "507f1f77bcf86cd799439010",
+							"description": "The ID of the exam to grade all submitted attempts for"
+						}
+					]
+				},
+				"description": "Bulk grades all submitted attempts for a specific exam. Requires teacher/admin permissions."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3005",
+			"type": "string",
+			"description": "AI API base URL (default: http://localhost:3005)"
+		},
+		{
+			"key": "academicApiUrl",
+			"value": "http://localhost:3003",
+			"type": "string",
+			"description": "Academic API base URL (default: http://localhost:3003)"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string",
+			"description": "JWT authentication token (get from login endpoint)"
+		}
+	]
+}

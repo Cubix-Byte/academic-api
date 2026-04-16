@@ -1,0 +1,491 @@
+{
+  "info": {
+    "_postman_id": "activity-logs-api-collection",
+    "name": "Activity Logs API",
+    "description": "Complete collection for Activity Logs API endpoints - Track teacher and student activities with role-based filtering",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Activity Logs",
+      "item": [
+        {
+          "name": "Get Activity Logs (Role-Based)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/activity-logs?month=August&year=2025&limit=50&offset=0",
+              "host": ["{{apiBase}}"],
+              "path": ["activity-logs"],
+              "query": [
+                {
+                  "key": "userType",
+                  "value": "teacher",
+                  "description": "Filter by user type: 'teacher' or 'student'",
+                  "disabled": true
+                },
+                {
+                  "key": "userId",
+                  "value": "",
+                  "description": "Filter by specific user ID",
+                  "disabled": true
+                },
+                {
+                  "key": "classId",
+                  "value": "",
+                  "description": "Filter by class ID",
+                  "disabled": true
+                },
+                {
+                  "key": "subjectId",
+                  "value": "",
+                  "description": "Filter by subject ID",
+                  "disabled": true
+                },
+                {
+                  "key": "activityType",
+                  "value": "",
+                  "description": "Filter by activity type (e.g., ExamCreated, ExamCompleted)",
+                  "disabled": true
+                },
+                {
+                  "key": "month",
+                  "value": "August",
+                  "description": "Filter by month name (e.g., August, September)"
+                },
+                {
+                  "key": "year",
+                  "value": "2025",
+                  "description": "Filter by year (e.g., 2025)"
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "description": "Start date (ISO format: YYYY-MM-DD)",
+                  "disabled": true
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "description": "End date (ISO format: YYYY-MM-DD)",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of results per page"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of results to skip"
+                }
+              ]
+            },
+            "description": "Get activity logs based on user role:\n- **School Admin**: Can see all logs (teachers + students)\n- **Teacher**: Can see class subject-wise logs and individual student logs\n- **Student**: Can only see their own logs"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Teacher Activity Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/activity-logs/teacher?month=August&year=2025&limit=50&offset=0",
+              "host": ["{{apiBase}}"],
+              "path": ["activity-logs", "teacher"],
+              "query": [
+                {
+                  "key": "teacherId",
+                  "value": "",
+                  "description": "Filter by specific teacher ID",
+                  "disabled": true
+                },
+                {
+                  "key": "classId",
+                  "value": "",
+                  "description": "Filter by class ID",
+                  "disabled": true
+                },
+                {
+                  "key": "subjectId",
+                  "value": "",
+                  "description": "Filter by subject ID",
+                  "disabled": true
+                },
+                {
+                  "key": "activityType",
+                  "value": "",
+                  "description": "Filter by activity type: ExamCreated, ExamEdited, ExamScheduled, PracticeExamCreated, PracticeExamEdited, CredentialCreated, CredentialAssigned",
+                  "disabled": true
+                },
+                {
+                  "key": "month",
+                  "value": "August",
+                  "description": "Filter by month name"
+                },
+                {
+                  "key": "year",
+                  "value": "2025",
+                  "description": "Filter by year"
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "description": "Start date (ISO format)",
+                  "disabled": true
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "description": "End date (ISO format)",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of results per page"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of results to skip"
+                }
+              ]
+            },
+            "description": "Get all teacher activity logs. Shows activities like:\n- ExamCreated\n- ExamEdited\n- ExamScheduled\n- PracticeExamCreated\n- PracticeExamEdited\n- CredentialCreated\n- CredentialAssigned"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Student Activity Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/activity-logs/student?month=August&year=2025&limit=50&offset=0",
+              "host": ["{{apiBase}}"],
+              "path": ["activity-logs", "student"],
+              "query": [
+                {
+                  "key": "studentId",
+                  "value": "",
+                  "description": "Filter by specific student ID",
+                  "disabled": true
+                },
+                {
+                  "key": "classId",
+                  "value": "",
+                  "description": "Filter by class ID",
+                  "disabled": true
+                },
+                {
+                  "key": "subjectId",
+                  "value": "",
+                  "description": "Filter by subject ID",
+                  "disabled": true
+                },
+                {
+                  "key": "activityType",
+                  "value": "",
+                  "description": "Filter by activity type: ExamCompleted, PracticeCompleted, BadgeEarned, CertificateEarned",
+                  "disabled": true
+                },
+                {
+                  "key": "month",
+                  "value": "August",
+                  "description": "Filter by month name"
+                },
+                {
+                  "key": "year",
+                  "value": "2025",
+                  "description": "Filter by year"
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "description": "Start date (ISO format)",
+                  "disabled": true
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "description": "End date (ISO format)",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of results per page"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of results to skip"
+                }
+              ]
+            },
+            "description": "Get all student activity logs. Shows activities like:\n- ExamCompleted\n- PracticeCompleted\n- BadgeEarned\n- CertificateEarned"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Class-Wise Activity Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/activity-logs/class/:classId?month=August&year=2025&limit=50&offset=0",
+              "host": ["{{apiBase}}"],
+              "path": ["activity-logs", "class", ":classId"],
+              "query": [
+                {
+                  "key": "userType",
+                  "value": "",
+                  "description": "Filter by user type: 'teacher' or 'student' (optional - shows both if not specified)",
+                  "disabled": true
+                },
+                {
+                  "key": "month",
+                  "value": "August",
+                  "description": "Filter by month name"
+                },
+                {
+                  "key": "year",
+                  "value": "2025",
+                  "description": "Filter by year"
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "description": "Start date (ISO format)",
+                  "disabled": true
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "description": "End date (ISO format)",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of results per page"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of results to skip"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "classId",
+                  "value": "{{classId}}",
+                  "description": "Class ID"
+                }
+              ]
+            },
+            "description": "Get all activity logs for a specific class. Can filter by userType to show only teacher or student logs."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Subject-Wise Activity Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/activity-logs/subject/:subjectId?month=August&year=2025&limit=50&offset=0",
+              "host": ["{{apiBase}}"],
+              "path": ["activity-logs", "subject", ":subjectId"],
+              "query": [
+                {
+                  "key": "userType",
+                  "value": "",
+                  "description": "Filter by user type: 'teacher' or 'student' (optional - shows both if not specified)",
+                  "disabled": true
+                },
+                {
+                  "key": "month",
+                  "value": "August",
+                  "description": "Filter by month name"
+                },
+                {
+                  "key": "year",
+                  "value": "2025",
+                  "description": "Filter by year"
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "description": "Start date (ISO format)",
+                  "disabled": true
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "description": "End date (ISO format)",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of results per page"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of results to skip"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "subjectId",
+                  "value": "{{subjectId}}",
+                  "description": "Subject ID"
+                }
+              ]
+            },
+            "description": "Get all activity logs for a specific subject. Can filter by userType to show only teacher or student logs."
+          },
+          "response": []
+        },
+        {
+          "name": "Get User-Specific Activity Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{apiBase}}/activity-logs/user/:userId?userType=teacher&month=August&year=2025&limit=50&offset=0",
+              "host": ["{{apiBase}}"],
+              "path": ["activity-logs", "user", ":userId"],
+              "query": [
+                {
+                  "key": "userType",
+                  "value": "teacher",
+                  "description": "Required: 'teacher' or 'student'",
+                  "disabled": false
+                },
+                {
+                  "key": "month",
+                  "value": "August",
+                  "description": "Filter by month name"
+                },
+                {
+                  "key": "year",
+                  "value": "2025",
+                  "description": "Filter by year"
+                },
+                {
+                  "key": "startDate",
+                  "value": "",
+                  "description": "Start date (ISO format)",
+                  "disabled": true
+                },
+                {
+                  "key": "endDate",
+                  "value": "",
+                  "description": "End date (ISO format)",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of results per page"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of results to skip"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "{{userId}}",
+                  "description": "User ID (teacher or student)"
+                }
+              ]
+            },
+            "description": "Get activity logs for a specific user (teacher or student). The userType parameter is required to specify whether the user is a teacher or student."
+          },
+          "response": []
+        }
+      ],
+      "description": "Activity Logs API endpoints for tracking teacher and student activities"
+    }
+  ],
+  "variable": [
+    {
+      "key": "apiBase",
+      "value": "http://localhost:3002/academy/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3002",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "classId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "subjectId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
+
+

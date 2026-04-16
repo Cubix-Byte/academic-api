@@ -1,0 +1,6 @@
+firstName,lastName,email,password,phone,rollNumber,classId,admissionDate,address,fatherName,motherName,bloodGroup
+John,Doe,john.doe@example.com,password123,1234567890,1,class123,15-01-24,123 Main Street,John Doe Sr,Mary Doe,O+
+Jane,Smith,jane.smith@example.com,password123,987654321,2,class123,15-01-24,456 Oak Avenue,Robert Smith,Linda Smith,A+
+Michael,Johnson,michael.johnson@example.com,password123,1122334455,3,class123,15-01-24,789 Pine Road,Michael Johnson Sr,Sarah Johnson,B+
+Emily,Williams,emily.williams@example.com,password123,2233445566,4,class123,15-01-24,321 Elm Street,David Williams,Lisa Williams,AB+
+David,Brown,david.brown@example.com,password123,3344556677,5,class123,15-01-24,654 Maple Drive,James Brown,Patricia Brown,O-

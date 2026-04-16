@@ -1,0 +1,317 @@
+import { Request, Response, NextFunction } from 'express';
+import * as gradingService from '../../services/grading.service';
+import { 
+  GetPendingSubmissionsRequest,
+  ManualGradeAttemptRequest,
+  UpdateMarksRequest,
+  BulkGradeRequest
+} from '../../types/grading.types';
+import { sendSuccessResponse, sendErrorResponse, HttpStatusCodes } from '../../utils/shared-lib-imports';
+
+/**
+ * Grading Controller - HTTP request handlers for teacher grading operations
+ */
+
+// Auto-grade attempt
+export const autoGradeAttempt = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { attemptId } = req.params;
+    const teacherId = req.user?.id;
+
+    if (!attemptId) {
+      return sendErrorResponse(res, 'Attempt ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    if (!teacherId) {
+      return sendErrorResponse(res, 'Teacher ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    const result = await gradingService.autoGradeAttempt(attemptId, teacherId);
+    return sendSuccessResponse(res, result.message, result);
+  } catch (error) {
+    const errorMessage = (error as Error).message;
+    if (errorMessage === 'ATTEMPT_NOT_FOUND') {
+      return sendErrorResponse(res, 'Attempt not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_FOUND') {
+      return sendErrorResponse(res, 'Exam not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_OWNED_BY_TEACHER') {
+      return sendErrorResponse(res, 'You do not have permission to grade this exam', HttpStatusCodes.FORBIDDEN);
+    }
+    if (errorMessage === 'ATTEMPT_NOT_SUBMITTED') {
+      return sendErrorResponse(res, 'Attempt has not been submitted yet', HttpStatusCodes.BAD_REQUEST);
+    }
+    next(error);
+  }
+};
+
+// Get pending submissions
+export const getPendingSubmissions = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const teacherId = req.user?.id;
+    const tenantId = req.user?.tenantId;
+
+    if (!teacherId) {
+      return sendErrorResponse(res, 'Teacher ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    if (!tenantId) {
+      return sendErrorResponse(res, 'Tenant ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    const params: GetPendingSubmissionsRequest & { teacherId: string; tenantId: string } = {
+      examId: req.query.examId as string,
+      pageNo: parseInt(req.query.pageNo as string) || 1,
+      pageSize: parseInt(req.query.pageSize as string) || 10,
+      sortBy: req.query.sortBy as 'submittedAt' | 'studentName',
+      sortOrder: req.query.sortOrder as 'asc' | 'desc',
+      teacherId: teacherId,
+      tenantId: tenantId
+    };
+
+    const result = await gradingService.getPendingSubmissions(params);
+    return sendSuccessResponse(res, 'Pending submissions retrieved successfully', result);
+  } catch (error) {
+    const errorMessage = (error as Error).message;
+    if (errorMessage === 'EXAM_NOT_FOUND') {
+      return sendErrorResponse(res, 'Exam not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_OWNED_BY_TEACHER') {
+      return sendErrorResponse(res, 'You do not have permission to view this exam', HttpStatusCodes.FORBIDDEN);
+    }
+    next(error);
+  }
+};
+
+// Manual grade attempt
+export const manualGradeAttempt = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data: ManualGradeAttemptRequest = req.body;
+    const teacherId = req.user?.id;
+
+    if (!teacherId) {
+      return sendErrorResponse(res, 'Teacher ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    const result = await gradingService.manualGradeAttempt(data, teacherId);
+    return sendSuccessResponse(res, result.message, result);
+  } catch (error) {
+    const errorMessage = (error as Error).message;
+    if (errorMessage === 'ATTEMPT_NOT_FOUND') {
+      return sendErrorResponse(res, 'Attempt not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_FOUND') {
+      return sendErrorResponse(res, 'Exam not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_OWNED_BY_TEACHER') {
+      return sendErrorResponse(res, 'You do not have permission to grade this exam', HttpStatusCodes.FORBIDDEN);
+    }
+    next(error);
+  }
+};
+
+// Update marks
+export const updateMarks = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data: UpdateMarksRequest = req.body;
+    const teacherId = req.user?.id;
+
+    if (!teacherId) {
+      return sendErrorResponse(res, 'Teacher ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    const result = await gradingService.updateMarks(data, teacherId);
+    return sendSuccessResponse(res, result.message, result);
+  } catch (error) {
+    const errorMessage = (error as Error).message;
+    if (errorMessage === 'ANSWER_NOT_FOUND') {
+      return sendErrorResponse(res, 'Answer not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'ATTEMPT_NOT_FOUND') {
+      return sendErrorResponse(res, 'Attempt not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_FOUND') {
+      return sendErrorResponse(res, 'Exam not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_OWNED_BY_TEACHER') {
+      return sendErrorResponse(res, 'You do not have permission to update marks for this exam', HttpStatusCodes.FORBIDDEN);
+    }
+    next(error);
+  }
+};
+
+// Publish results
+export const publishResults = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { attemptId } = req.params;
+    const teacherId = req.user?.id;
+
+    if (!attemptId) {
+      return sendErrorResponse(res, 'Attempt ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    if (!teacherId) {
+      return sendErrorResponse(res, 'Teacher ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    const result = await gradingService.publishResults(attemptId, teacherId);
+    return sendSuccessResponse(res, result.message, result);
+  } catch (error) {
+    const errorMessage = (error as Error).message;
+    if (errorMessage === 'ATTEMPT_NOT_FOUND') {
+      return sendErrorResponse(res, 'Attempt not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_FOUND') {
+      return sendErrorResponse(res, 'Exam not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_OWNED_BY_TEACHER') {
+      return sendErrorResponse(res, 'You do not have permission to publish results for this exam', HttpStatusCodes.FORBIDDEN);
+    }
+    if (errorMessage === 'ATTEMPT_NOT_GRADED') {
+      return sendErrorResponse(res, 'Attempt has not been fully graded yet', HttpStatusCodes.BAD_REQUEST);
+    }
+    next(error);
+  }
+};
+
+// Get grading statistics
+export const getGradingStatistics = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { examId } = req.params;
+    const teacherId = req.user?.id;
+
+    if (!examId) {
+      return sendErrorResponse(res, 'Exam ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    if (!teacherId) {
+      return sendErrorResponse(res, 'Teacher ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    const result = await gradingService.getGradingStatistics(examId, teacherId);
+    return sendSuccessResponse(res, 'Grading statistics retrieved successfully', result);
+  } catch (error) {
+    const errorMessage = (error as Error).message;
+    if (errorMessage === 'EXAM_NOT_FOUND') {
+      return sendErrorResponse(res, 'Exam not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_OWNED_BY_TEACHER') {
+      return sendErrorResponse(res, 'You do not have permission to view statistics for this exam', HttpStatusCodes.FORBIDDEN);
+    }
+    next(error);
+  }
+};
+
+// Get exam leaderboard
+export const getExamLeaderboard = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { examId } = req.params;
+    const teacherId = req.user?.id;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    if (!examId) {
+      return sendErrorResponse(res, 'Exam ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    if (!teacherId) {
+      return sendErrorResponse(res, 'Teacher ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    const result = await gradingService.getExamLeaderboard(examId, teacherId, limit);
+    return sendSuccessResponse(res, 'Leaderboard retrieved successfully', result);
+  } catch (error) {
+    const errorMessage = (error as Error).message;
+    if (errorMessage === 'EXAM_NOT_FOUND') {
+      return sendErrorResponse(res, 'Exam not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_OWNED_BY_TEACHER') {
+      return sendErrorResponse(res, 'You do not have permission to view leaderboard for this exam', HttpStatusCodes.FORBIDDEN);
+    }
+    next(error);
+  }
+};
+
+// Get attempt grading details
+export const getAttemptGradingDetails = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { attemptId } = req.params;
+    const teacherId = req.user?.id;
+
+    if (!attemptId) {
+      return sendErrorResponse(res, 'Attempt ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    if (!teacherId) {
+      return sendErrorResponse(res, 'Teacher ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    const result = await gradingService.getAttemptGradingDetails(attemptId, teacherId);
+    return sendSuccessResponse(res, 'Attempt details retrieved successfully', result);
+  } catch (error) {
+    const errorMessage = (error as Error).message;
+    if (errorMessage === 'ATTEMPT_NOT_FOUND') {
+      return sendErrorResponse(res, 'Attempt not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_FOUND') {
+      return sendErrorResponse(res, 'Exam not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_OWNED_BY_TEACHER') {
+      return sendErrorResponse(res, 'You do not have permission to view this attempt', HttpStatusCodes.FORBIDDEN);
+    }
+    next(error);
+  }
+};
+
+// Bulk auto-grade
+export const bulkAutoGrade = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const data: BulkGradeRequest = req.body;
+    const teacherId = req.user?.id;
+
+    if (!teacherId) {
+      return sendErrorResponse(res, 'Teacher ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    const result = await gradingService.bulkAutoGrade(data, teacherId);
+    return sendSuccessResponse(res, `Bulk grading completed: ${result.successCount} successful, ${result.failureCount} failed`, result);
+  } catch (error) {
+    const errorMessage = (error as Error).message;
+    if (errorMessage === 'EXAM_NOT_FOUND') {
+      return sendErrorResponse(res, 'Exam not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_OWNED_BY_TEACHER') {
+      return sendErrorResponse(res, 'You do not have permission to grade this exam', HttpStatusCodes.FORBIDDEN);
+    }
+    next(error);
+  }
+};
+
+// Get question performance
+export const getQuestionPerformance = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { examId } = req.params;
+    const teacherId = req.user?.id;
+
+    if (!examId) {
+      return sendErrorResponse(res, 'Exam ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    if (!teacherId) {
+      return sendErrorResponse(res, 'Teacher ID is required', HttpStatusCodes.BAD_REQUEST);
+    }
+
+    const result = await gradingService.getQuestionPerformance(examId, teacherId);
+    return sendSuccessResponse(res, 'Question performance retrieved successfully', result);
+  } catch (error) {
+    const errorMessage = (error as Error).message;
+    if (errorMessage === 'EXAM_NOT_FOUND') {
+      return sendErrorResponse(res, 'Exam not found', HttpStatusCodes.NOT_FOUND);
+    }
+    if (errorMessage === 'EXAM_NOT_OWNED_BY_TEACHER') {
+      return sendErrorResponse(res, 'You do not have permission to view performance for this exam', HttpStatusCodes.FORBIDDEN);
+    }
+    next(error);
+  }
+};
+

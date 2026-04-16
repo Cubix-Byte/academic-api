@@ -1,0 +1,9 @@
+export enum CLASS_SESSION_STATUS {
+    IN_PROGRESS = "in-progress",
+    COMPLETED = "completed",
+}
+
+export const CLASS_SESSION_STATUS_ARRAY = [
+    CLASS_SESSION_STATUS.IN_PROGRESS,
+    CLASS_SESSION_STATUS.COMPLETED,
+] as const;
